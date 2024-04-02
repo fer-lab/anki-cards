@@ -49,14 +49,16 @@ def main():
 
     for directory in directories:
         dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), directory)
-        for filename in os.listdir(dir_path):
-            if filename.endswith('.py') and not filename.startswith('.') and filename != 'anki':
-                full_path = os.path.join(dir_path, filename)
-                value = check_import_and_variable(full_path, 'FankiModelDefault', 'deck')
-                if value is not None:
-                    # Combine the directory name and file name for display
-                    display_name = f"{directory}/{filename}"
-                    files_info[display_name] = full_path
+        for subdirectory in os.listdir(dir_path):
+            subdirectory_path = os.path.join(dir_path, subdirectory)
+            if os.path.isdir(subdirectory_path):
+                main_file_path = os.path.join(subdirectory_path, 'main.py')
+                if os.path.isfile(main_file_path):
+                    value = check_import_and_variable(main_file_path, 'FankiModelDefault', 'deck')
+                    if value is not None:
+                        # Combine the directory name and subdirectory name for display
+                        display_name = f"{directory}/{subdirectory}"
+                        files_info[display_name] = main_file_path
 
     if not files_info:
         print("No files found matching the criteria.")
@@ -65,13 +67,13 @@ def main():
     # We use questionary to allow the user to select a file, displaying directory and name
     display_name_to_execute = questionary.select(
         "Choose a file to execute:",
-        choices=list(files_info.keys())
+        choices=list(files_info.keys()) + ["", "Cancel"]
     ).ask()
 
     # We execute the selected file using its full path
-    if display_name_to_execute:
+    if display_name_to_execute and display_name_to_execute != "" and display_name_to_execute != "Cancel":
         file_to_execute = files_info[display_name_to_execute]
-        print(f"Executing {display_name_to_execute}...")
+        print(f"Executing {display_name_to_execute}/main.py...")
         subprocess.run(["python3", file_to_execute], check=True)
     else:
         print("No file was selected.")

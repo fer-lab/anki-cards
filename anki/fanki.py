@@ -14,6 +14,7 @@ class FankiModel:
         self.fields = []
         self.templates = []
         self.css = ""
+        self._root_path = None
 
     def add_field(self, name):
         self.fields.append({'name': name})
@@ -71,6 +72,7 @@ class FankiModelGeneric:
         self._deck_namespace = deck_namespace
 
         self._deck_cards = []
+        self._deck_media = []
         self._f_model = self._f_model_instance()
         self._setup()
 
@@ -96,7 +98,6 @@ class FankiModelGeneric:
     def _get_deck_instance(self) -> genanki.Deck:
 
         model = self._get_model_instance()
-
         deck = genanki.Deck(self._deck_id, self._deck_name)
 
         field_names = [field['name'] for field in self._f_model.get_fields()]
@@ -104,7 +105,7 @@ class FankiModelGeneric:
 
         for card in self._deck_cards:
 
-            fields = [card.get(field_name) if card.get(field_name) is not None else '' for field_name in field_names]
+            fields = [self._parse_file(card.get(field_name)) for field_name in field_names]
             note = genanki.Note(model=model, fields=fields)
 
             deck.add_note(note)
@@ -113,17 +114,61 @@ class FankiModelGeneric:
 
         pass
 
+    def _parse_file(self, field_value) -> str:
+        if field_value is None:
+            return ""
+
+        valid_audio_files = [".mp3", ".wav"]
+        valid_image_files = [".jpg", ".jpeg", ".png", ".gif"]
+        valid_files = valid_audio_files + valid_image_files
+        is_image = any([field_value.endswith(valid_file) for valid_file in valid_image_files])
+        is_audio = any([field_value.endswith(valid_file) for valid_file in valid_audio_files])
+        is_file = any([field_value.endswith(valid_file) for valid_file in valid_files])
+        asset_path = self._asset_exists(field_value)
+
+        if not is_file or not field_value.startswith("assets/") or self._root_path is None or asset_path is None:
+            return field_value
+
+        if is_audio:
+            self._deck_media.append(asset_path)
+            return '<audio src="' + os.path.basename(asset_path) + '">'
+
+        if is_image:
+            self._deck_media.append(asset_path)
+            return '<img src="' + os.path.basename(asset_path) + '">'
+
+        return field_value
+
+    def _asset_exists(self, file_name):
+
+        if not file_name.startswith("assets/"):
+            return None
+
+        if self._root_path is None:
+            return None
+        file_path = os.path.join(self._root_path, file_name)
+        if os.path.isfile(_get_real_file_path(file_path)):
+            return file_path
+        return None
+
+    def _asset_final_name(self, file_name):
+
+        if file_name.startswith("assets/"):
+            return file_name[7:]
+        return file_name
+
     @classmethod
     def import_deck(cls):
 
         caller_file_path = inspect.stack()[1].filename
         caller_dir_path = os.path.dirname(os.path.realpath(caller_file_path))
-        alias = os.path.splitext(os.path.basename(caller_file_path))[0]
-        namespace = os.path.basename(os.path.dirname(caller_file_path))
-        json_file_path = os.path.join(caller_dir_path, alias + ".json")
+        alias = os.path.basename(os.path.dirname(caller_file_path))
+        namespace = os.path.basename(os.path.dirname(os.path.dirname(caller_file_path)))
+        json_file_path = os.path.join(caller_dir_path,  "data.json")
+
 
         if not os.path.isfile(json_file_path):
-            raise FileNotFoundError(f"File {json_file_path} not found")
+            raise FileNotFoundError("File {} not found".format(json_file_path))
 
         with open(json_file_path, 'r') as file:
             json_content = file.read()
@@ -148,6 +193,7 @@ class FankiModelGeneric:
                 raise ValueError("cards is required")
 
             deck = cls(int(deck_id), deck_name, deck_namespace, deck_alias)
+            deck.set_root_paht(caller_dir_path)
             deck.import_cards(deck_cards)
 
             return deck
@@ -156,9 +202,29 @@ class FankiModelGeneric:
 
     def generate(self):
 
-        genanki.Package(self._get_deck_instance()).write_to_file(
-            os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "packages", f"{self._deck_namespace}_{self._deck_alias}.apkg")
-        )
+        if self._root_path is None:
+            raise ValueError("root_path is required")
+
+        anki_package = genanki.Package(self._get_deck_instance())
+
+        if len(self._deck_media) > 0:
+            anki_package.media_files = self._deck_media
+
+        # remove all .apkg files in self._root_path directory
+        for file in os.listdir(self._root_path):
+            if file.endswith(".apkg"):
+                os.remove(os.path.join(self._root_path, file))
+
+        #dest_file = os.path.join(self._root_path, "package.apkg")
+        #anki_package.write_to_file(dest_file)
+
+        dest_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "packages", f"{self._deck_namespace}_{self._deck_alias}.apkg")
+        anki_package.write_to_file(dest_file)
+
+
+    def set_root_paht(self, caller_dir_path):
+        self._root_path = caller_dir_path
+        pass
 
 
 class FankiModelDefault(FankiModelGeneric):

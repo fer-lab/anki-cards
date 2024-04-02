@@ -3,7 +3,7 @@
   "name": "Française - Colours",
   "cards": [
     {"front":  "rouge", "back": "red"},
-    {"front":  "bleu", "back": "blue"},
+    {"front":  "assets/bleu.png", "back": "blue"},
     {"front":  "jaune", "back": "yellow"},
     {"front":  "vert", "back": "green"},
     {"front":  "orange", "back": "orange"},
