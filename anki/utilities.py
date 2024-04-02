@@ -2,7 +2,11 @@ import re
 import os
 
 import genanki
+from PIL import Image
 
+def convert_to_webp(input_image_path, output_image_path):
+    image = Image.open(input_image_path)
+    image.save(output_image_path, 'webp')
 
 def text_to_strings(source_file):
 
@@ -13,6 +17,7 @@ def text_to_strings(source_file):
     base_path = package_location()
 
     return f"{base_path}/{namespace}_{script_name}.apkg"
+
 
 def package_location():
 

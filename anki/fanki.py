@@ -2,8 +2,12 @@ import inspect
 import json
 import os
 from abc import abstractmethod
-
 import genanki
+from PIL import Image
+from pydub import AudioSegment
+from moviepy.editor import VideoFileClip
+
+
 
 
 class FankiModel:
@@ -66,11 +70,18 @@ class FankiModelGeneric:
 
     def __init__(self, deck_id, deck_name, deck_namespace, deck_alias):
 
+        self._valid_audio_files = [".mp3", ".ogg", ".wav", ".flac", ".m4a"]
+        self._valid_image_files = [".jpg", ".png", ".gif", ".tiff", ".svg", ".tif", ".jpeg", ".webp"]
+        self._valid_video_files = [".avi", ".ogv", ".mpg", ".mpeg", ".mov", ".mp4", ".mkv", ".flv", ".swf"]
+        self._valid_any_files = self._valid_audio_files + self._valid_image_files + self._valid_video_files
+
         self._deck_id = deck_id
         self._deck_name = deck_name
         self._deck_alias = deck_alias
         self._deck_namespace = deck_namespace
 
+        self._packages_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "packages")
+        self._temp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "temp")
         self._deck_cards = []
         self._deck_media = []
         self._f_model = self._f_model_instance()
@@ -118,26 +129,104 @@ class FankiModelGeneric:
         if field_value is None:
             return ""
 
-        valid_audio_files = [".mp3", ".wav"]
-        valid_image_files = [".jpg", ".jpeg", ".png", ".gif"]
-        valid_files = valid_audio_files + valid_image_files
-        is_image = any([field_value.endswith(valid_file) for valid_file in valid_image_files])
-        is_audio = any([field_value.endswith(valid_file) for valid_file in valid_audio_files])
-        is_file = any([field_value.endswith(valid_file) for valid_file in valid_files])
+        is_image = any([field_value.endswith(valid_file) for valid_file in self._valid_image_files])
+        is_audio = any([field_value.endswith(valid_file) for valid_file in self._valid_audio_files])
+        is_video = any([field_value.endswith(valid_file) for valid_file in self._valid_video_files])
+        is_file = any([field_value.endswith(valid_file) for valid_file in self._valid_any_files])
         asset_path = self._asset_exists(field_value)
 
         if not is_file or not field_value.startswith("assets/") or self._root_path is None or asset_path is None:
             return field_value
 
         if is_audio:
-            self._deck_media.append(asset_path)
-            return '<audio src="' + os.path.basename(asset_path) + '">'
+            file_path = self._convert_to_ogg(asset_path)
+            self._deck_media.append(file_path)
+            return '<audio src="' + os.path.basename(file_path) + '">'
+
+        if is_video:
+            file_path = self._convert_to_mp4(asset_path)
+            self._deck_media.append(file_path)
+            return '<video src="' + os.path.basename(file_path) + '">'
 
         if is_image:
-            self._deck_media.append(asset_path)
-            return '<img src="' + os.path.basename(asset_path) + '">'
+            file_path = self._convert_to_webp(asset_path)
+            self._deck_media.append(file_path)
+            return '<img src="' + os.path.basename(file_path) + '">'
 
         return field_value
+
+    def _copy_asset(self, _asset_path):
+
+        if not os.path.isfile(_asset_path):
+            raise FileNotFoundError("{} is not a file", _asset_path)
+
+        temp_file_path = self._temp_asset_path(_asset_path)
+        os.system(f"cp {_asset_path} {temp_file_path}")
+        return temp_file_path
+
+    def _temp_asset_path(self, _asset_path):
+        return self._asset_temp_path(self._asset_final_name(_asset_path))
+
+    def _convert_to_webp(self, asset_path):
+
+        if asset_path.endswith(".webp"):
+            return self._copy_asset(asset_path)
+
+        temp_file_path = self._temp_asset_path(asset_path)
+
+        temp_file_path = os.path.splitext(temp_file_path)[0] + ".webp"
+
+        image = Image.open(asset_path)
+        image.save(temp_file_path, 'webp')
+        return temp_file_path
+
+    def _convert_to_ogg(self, asset_path):
+
+        if asset_path.endswith(".ogg"):
+            return self._copy_asset(asset_path)
+
+        temp_file_path = self._temp_asset_path(asset_path)
+        temp_file_path = os.path.splitext(temp_file_path)[0] + ".ogg"
+
+        audio = AudioSegment.from_file(asset_path)
+        audio.export(temp_file_path, format="ogg")
+        return temp_file_path
+
+    def _convert_to_mp4(self, asset_path):
+
+        if asset_path.endswith(".mp4"):
+            return self._copy_asset(asset_path)
+
+        temp_file_path = self._temp_asset_path(asset_path)
+        temp_file_path = os.path.splitext(temp_file_path)[0] + ".mp4"
+
+        clip = VideoFileClip(asset_path)
+        clip.write_videofile(temp_file_path, codec='libx264')
+
+        return temp_file_path
+
+
+    def _asset_temp_path(self, file_name):
+
+        # if self._temp_path is None or folder not exist
+        if self._temp_path is None:
+            raise ValueError("temp_path is required")
+
+        if not os.path.isdir(self._temp_path):
+            raise FileNotFoundError("{} is not a directory", self._temp_path)
+
+        temp_path = os.path.join(self._temp_path, self._deck_namespace + "." + self._deck_alias)
+        temp_path_full = os.path.join(temp_path, os.path.basename(file_name))
+        if not os.path.isdir(temp_path):
+            os.makedirs(temp_path)
+
+
+        # if file exist, delete it
+        if os.path.isfile(temp_path_full):
+            os.remove(temp_path_full)
+
+        return temp_path_full
+
 
     def _asset_exists(self, file_name):
 
