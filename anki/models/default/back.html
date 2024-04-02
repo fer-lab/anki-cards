@@ -1,0 +1,32 @@
+<div class="encl">
+    <span class=exp>{{front}}</span>
+</div>
+<br>
+<div class="encl">
+    {{#back}}
+    <span class=color>{{back}}</span>
+    {{#back_audio}}
+    [sound:{{back_audio}}]
+    {{/back_audio}}
+
+    <hr>
+    {{/back}}
+
+    {{#back_image}}
+    [image:{{back_image}}]
+    <hr>
+    {{/back_image}}
+
+    {{#back_sentence}}
+        <span class=sentence>{{back_sentence}}</span>
+    {{/back_sentence}}
+
+    {{#back_sentence_audio}}
+        [sound:{{back_sentence_audio}}]
+    {{/back_sentence_audio}}
+
+    {{#back_ipa}}
+    <br>
+    <span class=sentence-eng>{{back_ipa}}</span>
+    {{/back_ipa}}
+</div>

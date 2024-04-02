@@ -1,0 +1,16 @@
+{
+  "id": 2059400110,
+  "name": "Française - Colours",
+  "cards": [
+    {"front":  "rouge", "back": "red"},
+    {"front":  "bleu", "back": "blue"},
+    {"front":  "jaune", "back": "yellow"},
+    {"front":  "vert", "back": "green"},
+    {"front":  "orange", "back": "orange"},
+    {"front":  "violet", "back": "purple"},
+    {"front":  "rose", "back": "pink"},
+    {"front":  "noir", "back": "black"},
+    {"front":  "blanc", "back": "white"},
+    {"front":  "gris", "back": "grey"}
+  ]
+}

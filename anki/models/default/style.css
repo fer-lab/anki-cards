@@ -1,0 +1,280 @@
+.mobile .card {
+    margin: 15px 15px 50px 15px;
+}
+
+.card {
+    font-family: calibri;
+    font-size: 14px;
+    text-align: left;
+    background-color: #CADEFA;
+    margin: 60px 60px 60px 60px;
+    background: url("3.png") top left fixed;
+}
+
+/*———————————
+NOTES: You can change the background colour from #CADEFA above to any colour you like, or alternatively add an image URL into the '3.png’ brackets to add a background image.
+———————————–*/
+.encl {
+    padding: 35px 35px 24px 30px;
+    background-color: #fff;
+    border-radius: 19px;
+    overflow: hidden;
+    border-left: 5px solid #47c4f1;
+    border-bottom: 5px solid #A1A6BC
+}
+
+.mobile .encl {
+    padding: 15px;
+}
+
+#encl2 {
+    padding: 28px 30px 10px 30px;
+    background-color: #E8E8E8;
+    border-radius: 19px;
+    overflow: hidden;
+    border-left: 5px solid #47c4f1;
+    border-bottom: 5px solid #A1A6BC
+}
+
+.mobile .encl {
+    padding: 15px;
+}
+
+#encl3 {
+    padding: 5px 5px 10px 30px;
+    background-color: #FFFFFF;
+    border-radius: 19px;
+    overflow: hidden;
+    border-left: 5px solid #47c4f1;
+    border-bottom: 5px solid #A1A6BC
+}
+
+.mobile .encl {
+    padding: 15px;
+}
+
+#encl4 {
+    padding: 28px 30px 10px 30px;
+    background-color: #E8E8E8;
+    border-radius: 19px;
+    overflow: hidden;
+    border-left: 5px solid #47c4f1;
+    border-bottom: 5px solid #A1A6BC
+}
+
+.mobile .encl {
+    padding: 15px;
+}
+
+/*———————————
+NOTES: You can change the colour of the two borders above (currrently left = blue  and bottom = gray) by changing  ’#47c4f1’ and ’#A1A6BC’. You can also change the background colour of your 'enclosures’ (the boxes in which your text sits).
+———————————–*/
+.category {
+    font-family: Calibri;
+    font-size: 18px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.blanked b {
+    background: #CADEFA;
+    color: #CADEFA;
+    margin: 0 5px;
+    padding: 0 2px;
+    border-radius: 10px;
+}
+
+.underline b {
+    padding-left: 60px;
+    color: transparent;
+    border-bottom: 3px solid #999;
+    font-size: 0px;
+}
+
+.pass b {
+    -webkit-text-security: disc;
+    margin: 0 8px;
+}
+
+.exp, .sent {
+    font-family: Kozuka Gothic Pro B;
+    color: #000000;
+    font-size: 60px;
+    line-height: 60px;
+    font-weight: bold
+}
+
+.win .exp, .sent {
+    font-size: 36px;
+}
+
+.word {
+    background: #BDE5F8;
+    color: #00529B;
+    font-family: Kozuka Gothic Pro B;
+    font-size: 60px;
+    padding: 26px 10px 10px 10px;
+    margin: 0 5px 0 -5px;
+    border-radius: 20px;
+    font-weight: bold;
+    line-height: 80px;
+}
+
+b, .color {
+    color: #0c6efa
+}
+
+.color {
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.mobile .color {
+    font-weight: normal;
+    font-family: Georgia;
+}
+
+.wordie {
+    background: #BDE5F8;
+    color: #00529B;
+    font-family: Kozuka Gothic Pro B;
+    font-size: 20px;
+    padding: 8px 8px;
+    margin: 0 5px 0 -5px;
+    border-radius: 10px;
+    font-weight: bold;
+    line-height: 30px;
+}
+
+.def {
+    color: #bbb;
+}
+
+
+b, .color2 {
+    color: #FFFFFF
+}
+
+.color2 {
+    font-weight: bold;
+    font-size: 60px;
+}
+
+.mobile .color {
+    font-weight: normal;
+    font-family: Georgia;
+}
+
+.sentence {
+    font-size: 15px;
+    color: #bbb !important;
+    font-family: Calibri, Georgia;
+    line-height: 10px
+}
+
+.sentence-eng {
+    font-size: 15px;
+    color: #666666 !important;
+    font-family: Calibri, Georgia;
+    line-height: 10px;
+    font-style: italic;
+}
+
+.jlpt {
+    font-size: 14px;
+    color: white !important;
+    font-family: Calibri, Georgia;
+    line-height: 10px;
+    font-weight: bold;
+    background: #AAAAAA;
+    border-radius: 50px 15px 50px 15px;
+    padding: 6px
+}
+
+ruby rt {
+    font-size: 22px;
+    margin: -4px 0;
+    font-weight: bold;
+}
+
+.mobile ruby rt {
+    font-size: 14px;
+}
+
+b ruby rt {
+    opacity: 0.5;
+}
+
+a:link {
+    text-decoration: none;
+    color: #9d9d9d !important;
+}
+
+hr {
+    border: dashed 1px #eee;
+    background-color: #fff;
+    margin: 10px -15px;
+}
+
+.mobile hr {
+    margin: 5px -13px;
+}
+
+/*———————————
+NOTES: This section above is a bit more complicated, essentially it is the styling of the different card fields.
+but experiment with the colour hashtags to find out which part of the card you are changing. Change any #color to simply 'red’ (no apostrophies) and you can see immediately what you are changing.
+———————————–*/
+/* This line is Added by Cloze Furigana Tools to make its various features work. CFT.260.00*/
+.hidden {
+    visibility: hidden;
+    font-size: 0;
+}
+
+.hidden .cloze, .cloze .hidden {
+    visibility: visible;
+    background-color: white;
+    font-size: 0.8rem;
+}
+
+@-moz-document url-prefix() {
+    ruby {
+        position: relative;
+        display: inline-block;
+    }
+    ruby rt {
+        position: absolute;
+        display: block;
+        font-size: 0.5em;
+        left: -50%;
+        bottom: 115%;
+        width: 210%;
+        padding: 0;
+        text-align: center;
+        line-height: 1em
+    }
+}
+
+.hidden .basemaru {
+    position: relative;
+}
+
+.hidden .basemaru:after {
+    content: "◯";
+    visibility: visible;
+    position: absolute;
+    left: 0;
+}
+
+.hidden .cloze .basemaru:after, .cloze .hidden .basemaru:after {
+    visibility: hidden;
+}
+
+div {
+    line-height: 2em;
+}
+
+.cloze_container .hidden {
+    visibility: visible;
+    background-color: white;
+}

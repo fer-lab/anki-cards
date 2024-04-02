@@ -1,5 +1,7 @@
 import os
 import ast
+import re
+
 import questionary
 import subprocess
 
@@ -8,31 +10,20 @@ def check_import_and_variable(file_path, library, variable_name):
     Checks if the file at `file_path` imports the specified library
     and defines the given variable.
 
-    Returns the value of the variable if both conditions are met, None otherwise.
+    Returns True if both conditions are met, False otherwise.
     """
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
 
-    tree = ast.parse(content, filename=file_path)
-    imports_library = False
-    variable_value = None
+    # Check if the file imports the library
+    import_pattern = r"from\s+.+\s+import\s+{0}".format(library)
+    imports_library = re.search(import_pattern, content) is not None
 
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            for alias in node.names:
-                if alias.name == library or getattr(node, 'module', '') == library:
-                    imports_library = True
-                    break
-        elif isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == variable_name:
-                    # Handling both Python versions < 3.8 and >= 3.8
-                    variable_value = node.value.s if isinstance(node.value, ast.Str) else node.value.value
-                    break
+    # Check if the file defines the variable
+    variable_pattern = r"{0}\s*=\s*.+".format(variable_name)
+    variable_defined = re.search(variable_pattern, content) is not None
 
-    if imports_library and variable_value is not None:
-        return variable_value
-    return None
+    return imports_library and variable_defined
 
 
 def list_sibling_directories():
@@ -46,7 +37,8 @@ def list_sibling_directories():
     sibling_directories = [entry for entry in all_entries
                            if os.path.isdir(os.path.join(executed_file_directory, entry))
                            and not entry.startswith(".")
-                           and entry != "anki"]
+                           and entry != "anki"
+                           and not entry.startswith("_")]
 
     return sibling_directories
 
@@ -60,7 +52,7 @@ def main():
         for filename in os.listdir(dir_path):
             if filename.endswith('.py') and not filename.startswith('.') and filename != 'anki':
                 full_path = os.path.join(dir_path, filename)
-                value = check_import_and_variable(full_path, 'genanki', 'deck_name')
+                value = check_import_and_variable(full_path, 'FankiModelDefault', 'deck')
                 if value is not None:
                     # Combine the directory name and file name for display
                     display_name = f"{directory}/{filename}"
