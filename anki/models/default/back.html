@@ -5,28 +5,47 @@
 <div class="encl">
     {{#back}}
     <span class=color>{{back}}</span>
+
     {{#back_audio}}
-    [sound:{{back_audio}}]
+        <span class="autoplay">
+            {{back_audio}}
+        </span>
     {{/back_audio}}
 
     <hr>
     {{/back}}
 
+
     {{#back_image}}
-    [image:{{back_image}}]
+        {{back_image}}
     <hr>
     {{/back_image}}
 
-    {{#back_sentence}}
+    {{#back_sentence}}sss
         <span class=sentence>{{back_sentence}}</span>
+
+        {{#back_sentence_audio}}
+            {{back_sentence_audio}}
+        {{/back_sentence_audio}}
+
     {{/back_sentence}}
 
-    {{#back_sentence_audio}}
-        [sound:{{back_sentence_audio}}]
-    {{/back_sentence_audio}}
+
 
     {{#back_ipa}}
     <br>
     <span class=sentence-eng>{{back_ipa}}</span>
     {{/back_ipa}}
 </div>
+
+ <script>
+	var elem = document.querySelector(".soundLink, .replaybutton");
+	if (elem) {
+		elem.click();
+	}else{
+		window.onload = function(){
+			var elem = document.querySelector(".soundLink, .replaybutton");
+			if (elem) { elem.click();}
+		}
+	}
+ </script>

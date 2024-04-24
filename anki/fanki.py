@@ -1,3 +1,4 @@
+import hashlib
 import inspect
 import json
 import os
@@ -6,8 +7,8 @@ import genanki
 from PIL import Image
 from pydub import AudioSegment
 from moviepy.editor import VideoFileClip
-
-
+from anki.utilities import text_to_ogg
+from bs4 import BeautifulSoup
 
 
 class FankiModel:
@@ -68,20 +69,56 @@ def _get_file_content(file_path) ->str:
 
 class FankiModelGeneric:
 
-    def __init__(self, deck_id, deck_name, deck_namespace, deck_alias):
+    def __init__(self, deck_id=None, deck_name=None, deck_namespace=None, deck_alias=None, root_path=None):
+
+        caller_file_path = inspect.stack()[1].filename
+        caller_dir_path = os.path.dirname(os.path.realpath(caller_file_path))
+
+        if root_path is None or not os.path.isdir(root_path):
+            root_path = caller_dir_path
 
         self._valid_audio_files = [".mp3", ".ogg", ".wav", ".flac", ".m4a"]
         self._valid_image_files = [".jpg", ".png", ".gif", ".tiff", ".svg", ".tif", ".jpeg", ".webp"]
         self._valid_video_files = [".avi", ".ogv", ".mpg", ".mpeg", ".mov", ".mp4", ".mkv", ".flv", ".swf"]
         self._valid_any_files = self._valid_audio_files + self._valid_image_files + self._valid_video_files
 
-        self._deck_id = deck_id
+        self._root_path = root_path
+        self._path_assets = os.path.join(self._root_path, "assets")
+
+        if not os.path.isdir(self._root_path):
+            raise FileNotFoundError(f"_root_path folder ({self._root_path}) not found")
+
+        if not os.path.isdir(self._path_assets):
+            raise FileNotFoundError(f"_path_assets folder ({self._path_assets}) not found")
+
+
+        self._deck_id = int(deck_id)
         self._deck_name = deck_name
         self._deck_alias = deck_alias
         self._deck_namespace = deck_namespace
 
+        if self._deck_id is None or not isinstance(self._deck_id, int) or self._deck_id < 0:
+            raise ValueError("deck_id is required")
+
+        if self._deck_name is None:
+            raise ValueError("deck_name is required")
+
+        if self._deck_alias is None:
+            raise ValueError("deck_alias is required")
+
+        if self._deck_namespace is None:
+            raise ValueError("deck_namespace is required")
+
+
         self._packages_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "packages")
         self._temp_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "temp")
+
+        if not os.path.isdir(self._packages_path):
+            raise FileNotFoundError(f"_packages_path folder ({self._packages_path}) not found")
+
+        if not os.path.isdir(self._temp_path):
+            raise FileNotFoundError(f"_temp_path folder ({self._temp_path}) not found")
+
         self._deck_cards = []
         self._deck_media = []
         self._f_model = self._f_model_instance()
@@ -111,23 +148,45 @@ class FankiModelGeneric:
         model = self._get_model_instance()
         deck = genanki.Deck(self._deck_id, self._deck_name)
 
-        field_names = [field['name'] for field in self._f_model.get_fields()]
-
+        model_fields = [field['name'] for field in self._f_model.get_fields()]
 
         for card in self._deck_cards:
+            card = self._parse_card_fields(card)
 
-            fields = [self._parse_file(card.get(field_name)) for field_name in field_names]
+            fields = [card.get(field_name) if card.get(field_name) is not None else "" for field_name in model_fields]
+            print(fields)
+
+
             note = genanki.Note(model=model, fields=fields)
-
             deck.add_note(note)
 
         return deck
 
-        pass
+    def _parse_card_fields(self, card) -> dict:
 
-    def _parse_file(self, field_value) -> str:
+        # special fields
+        for field_name, field_value in card.items():
+            card[field_name] = self._parse_field_value(field_name, field_value)
+
+        # tts fields
+        for field_name, field_value in card.items():
+            card[field_name] = self._parse_field_value_tts(card, field_name, field_value)
+
+        for field_name, field_value in card.items():
+            if not isinstance(field_value, str):
+                card[field_name] = ""
+
+        return card
+
+
+    def _parse_field_value(self, field_name, field_value) -> str:
+
+        if field_name.endswith("_tts"):
+            return field_value
+
         if field_value is None:
             return ""
+
 
         is_image = any([field_value.endswith(valid_file) for valid_file in self._valid_image_files])
         is_audio = any([field_value.endswith(valid_file) for valid_file in self._valid_audio_files])
@@ -138,15 +197,15 @@ class FankiModelGeneric:
         if not is_file or not field_value.startswith("assets/") or self._root_path is None or asset_path is None:
             return field_value
 
-        if is_audio:
+        if is_audio and field_name.endswith("_audio"):
             file_path = self._convert_to_ogg(asset_path)
             self._deck_media.append(file_path)
-            return '<audio src="' + os.path.basename(file_path) + '">'
+            return "[sound:{}]".format(os.path.basename(file_path))
 
-        if is_video:
+        if is_video and field_name.endswith("_video"):
             file_path = self._convert_to_mp4(asset_path)
             self._deck_media.append(file_path)
-            return '<video src="' + os.path.basename(file_path) + '">'
+            return os.path.basename(file_path)
 
         if is_image:
             file_path = self._convert_to_webp(asset_path)
@@ -154,6 +213,48 @@ class FankiModelGeneric:
             return '<img src="' + os.path.basename(file_path) + '">'
 
         return field_value
+
+    def _parse_field_value_tts(self, card, field_name, field_value):
+
+        if not field_name.endswith("_tts"):
+            return field_value
+
+        field_name_base = field_name[:-4]
+        field_name_audio = field_name_base + "_audio"
+
+        if card.get(field_name_audio):
+            return None
+
+        if field_value is True and not card.get(field_name_base):
+            return None
+
+        if field_value is True:
+
+            field_value = card.get(field_name_base)
+
+            if "<" in field_value:
+                field_value = BeautifulSoup(field_value, "html.parser").get_text()
+
+        if not isinstance(field_value, str) or field_value == "":
+            return None
+
+        # md5 field_value as string
+        md5 = hashlib.md5(field_value.encode()).hexdigest()
+        file_name = f"tts_{md5}.ogg"
+        file_path = os.path.join(self._path_assets, file_name)
+
+        if not os.path.isfile(file_path):
+            file_path = text_to_ogg(text=field_value, destination_path=file_path, prosody='slow')
+            print(file_path)
+
+        if not os.path.isfile(file_path):
+            return None
+
+        self._deck_media.append(file_path)
+
+        card[field_name_audio] = "[sound:{}]".format(os.path.basename(file_path))
+
+        return None
 
     def _copy_asset(self, _asset_path):
 
@@ -247,14 +348,20 @@ class FankiModelGeneric:
         return file_name
 
     @classmethod
-    def import_deck(cls):
+    def import_deck(cls, data_file_path=None):
 
-        caller_file_path = inspect.stack()[1].filename
-        caller_dir_path = os.path.dirname(os.path.realpath(caller_file_path))
-        alias = os.path.basename(os.path.dirname(caller_file_path))
-        namespace = os.path.basename(os.path.dirname(os.path.dirname(caller_file_path)))
-        json_file_path = os.path.join(caller_dir_path,  "data.json")
 
+        if data_file_path is None or not os.path.isdir(data_file_path):
+            caller_file_path = inspect.stack()[1].filename
+            data_file_path = os.path.dirname(os.path.realpath(caller_file_path))
+
+
+        if not os.path.isdir(data_file_path):
+            raise FileNotFoundError("data_file is required")
+
+        alias = os.path.basename(data_file_path)
+        namespace = os.path.basename(os.path.dirname(data_file_path))
+        json_file_path = os.path.join(data_file_path,  "data.json")
 
         if not os.path.isfile(json_file_path):
             raise FileNotFoundError("File {} not found".format(json_file_path))
@@ -281,8 +388,13 @@ class FankiModelGeneric:
             if (deck_cards is None) or (len(deck_cards) == 0):
                 raise ValueError("cards is required")
 
-            deck = cls(int(deck_id), deck_name, deck_namespace, deck_alias)
-            deck.set_root_paht(caller_dir_path)
+            deck = cls(
+                deck_id=int(deck_id),
+                deck_name=deck_name,
+                deck_namespace=deck_namespace,
+                deck_alias=deck_alias,
+                root_path=data_file_path
+            )
             deck.import_cards(deck_cards)
 
             return deck
@@ -337,16 +449,18 @@ class FankiModelDefault(FankiModelGeneric):
         self._f_model.add_field('back_sentence_audio')
         self._f_model.add_field('back_ipa')
 
-    def add_card(self, front=None, front_image=None, front_audio=None, back=None, back_image=None, back_audio=None, back_sentence=None, back_sentence_audio=None, ipa=None):
+    def add_card(self, front=None, front_image=None, front_audio=None, back=None, back_tts=None, back_image=None, back_audio=None, back_sentence=None, back_sentence_tts=None, back_sentence_audio=None, ipa=None):
 
         self._deck_cards.append({
             'front': front,
             'front_image': front_image,
             'front_audio': front_audio,
             'back': back,
+            'back_tts': back,
             'back_image': back_image,
             'back_audio': back_audio,
             'back_sentence': back_sentence,
+            'back_sentence_tts': back_sentence_tts,
             'back_sentence_audio': back_sentence_audio,
             'back_ipa': ipa
         })
@@ -360,9 +474,11 @@ class FankiModelDefault(FankiModelGeneric):
                 front_image=card.get('front_image'),
                 front_audio=card.get('front_audio'),
                 back=card.get('back'),
+                back_tts=card.get('back_tts'),
                 back_image=card.get('back_image'),
                 back_audio=card.get('back_audio'),
                 back_sentence=card.get('back_sentence'),
+                back_sentence_tts=card.get('back_sentence_tts'),
                 back_sentence_audio=card.get('back_sentence_audio'),
                 ipa=card.get('back_ipa')
             )

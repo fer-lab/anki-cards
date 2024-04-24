@@ -1,4 +1,5 @@
-import re
+import random
+import boto3
 import os
 
 import genanki
@@ -18,6 +19,42 @@ def text_to_strings(source_file):
 
     return f"{base_path}/{namespace}_{script_name}.apkg"
 
+
+def text_to_ogg(lang='fr', text="", destination_path=None, prosody=False) -> str:
+
+    voices = {
+        'fr': ['Lea', 'Remi'],
+        'en': ['Matthew', 'Joanna']
+    }
+
+    # if lang exist in voices
+    if lang not in voices:
+        raise ValueError("lang must exist in voices")
+
+    if destination_path is None:
+        raise ValueError("destination_path must be specified")
+
+    if text == "" or not isinstance(text, str):
+        raise ValueError("text must be specified")
+
+    session = boto3.Session(profile_name='fer', region_name='us-east-1')
+    polly_client = session.client('polly')
+
+    # get rando voice from voices
+    voice = random.choice(voices[lang])
+
+    response = polly_client.synthesize_speech(
+        Engine='neural',
+        VoiceId=voice,
+        OutputFormat='ogg_vorbis',
+        Text=f'<speak><prosody rate="{prosody}">{text}</prosody></speak>' if prosody else text,
+        TextType='ssml' if prosody else 'text'
+    )
+
+    with open(destination_path, 'wb') as file:
+        file.write(response['AudioStream'].read())
+
+    return destination_path
 
 def package_location():
 

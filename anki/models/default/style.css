@@ -1,3 +1,11 @@
+.encl .exp {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Asegúrate de que el contenedor tenga una altura para que el contenido pueda centrarse */
+}
+
+
 .mobile .card {
     margin: 15px 15px 50px 15px;
 }
@@ -8,7 +16,7 @@
     text-align: left;
     background-color: #CADEFA;
     margin: 60px 60px 60px 60px;
-    background: url("3.png") top left fixed;
+    /*background: url("3.png") top left fixed;*/
 }
 
 /*———————————
