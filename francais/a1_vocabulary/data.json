@@ -1,0 +1,16 @@
+{
+  "id": 2054608919,
+  "name": "Francaise::A1 Vocabulary",
+  "cards": [
+    {"front": "assets/01_une_chaise.jpg", "back": "Une Chaise", "back_audio":"assets/01_une_chaise.mp3", "back_sentence":  "Je m'assois sur la chaise.", "back_sentence_tts":  true},
+    {"front": "assets/02_une_table.jpg", "back": "Une Table", "back_audio": "assets/02_une_table.mp3", "back_sentence":  "Il y a une table dans la cuisine.", "back_sentence_tts":  true},
+    {"front": "assets/03_un_tableau.jpg", "back": "Un Tableau", "back_audio":  "assets/03_un_tableau.mp3", "back_sentence":  "Le tableau est accroché au mur.", "back_sentence_tts":  true},
+    {"front": "assets/04_un_ordinateur.jpg", "back": "Un Ordinateur", "back_audio":  "assets/04_un_ordinateur.mp3", "back_sentence":  "Mon ordinateur est sur le bureau.", "back_sentence_tts":  true},
+    {"front": "assets/05_une_tablette.jpg", "back": "Une Tablette", "back_audio": "assets/05_une_tablette.mp3", "back_sentence":  "Elle lit un livre sur une tablette.", "back_sentence_tts":  true},
+    {"front": "assets/06_un_smartphone.jpg", "back": "Un Smartphone", "back_audio": "assets/06_un_smartphone.mp3", "back_sentence":  "Tu as un nouveau smartphone.", "back_sentence_tts":  true},
+    {"front": "assets/07_un_cahier.jpg", "back": "Un Cahier", "back_audio": "assets/07_un_cahier.mp3", "back_sentence":  "J'écris dans mon cahier.", "back_sentence_tts":  true},
+    {"front": "assets/08_un_livre.jpg", "back": "Un Livre", "back_audio": "assets/08_un_livre.mp3", "back_sentence":  "Ce livre est très intéressant.", "back_sentence_tts":  true},
+    {"front": "assets/09_un_stylo.jpg", "back": "Un Stylo", "back_audio": "assets/09_un_stylo.mp3", "back_sentence":  "J'ai besoin d'un stylo pour écrire.", "back_sentence_tts":  true},
+    {"front": "assets/10_un_crayon.jpg", "back": "Un Crayon", "back_audio":  "assets/10_un_crayon.mp3", "back_sentence":  "Dessine avec ce crayon.", "back_sentence_tts":  true}
+  ]
+}
