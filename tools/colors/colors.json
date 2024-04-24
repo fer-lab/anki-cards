@@ -1,0 +1,142 @@
+[
+    {
+        "name": "jaune",
+        "code": "#FFFF00"
+    },
+    {
+        "name": "orange",
+        "code": "#ED7F10"
+    },
+    {
+        "name": "rouge",
+        "code": "#FF0000"
+    },
+    {
+        "name": "rose",
+        "code": "#FD6C9E"
+    },
+    {
+        "name": "violet",
+        "code": "#660099"
+    },
+    {
+        "name": "bleu",
+        "code": "#0000FF"
+    },
+    {
+        "name": "vert",
+        "code": "#008000"
+    },
+    {
+        "name": "brun",
+        "code": "#5B3C11"
+    },
+    {
+        "name": "gris",
+        "code": "#606060"
+    },
+    {
+        "name": "noir",
+        "code": "#000000"
+    },
+    {
+        "name": "blanc",
+        "code": "#FFFFFF"
+    },
+    {
+        "name": "citron",
+        "code": "#F7FF3C"
+    },
+    {
+        "name": "jaune canari",
+        "code": "#E7F00D"
+    },
+    {
+        "name": "jaune moutarde",
+        "code": "#C7CF00"
+    },
+    {
+        "name": "orange saumon",
+        "code": "#F88E55"
+    },
+    {
+        "name": "rouge carmin",
+        "code": "#960018"
+    },
+    {
+        "name": "bordeaux",
+        "code": "#6D071A"
+    },
+    {
+        "name": "magenta",
+        "code": "#FF00FF"
+    },
+    {
+        "name": "mauve",
+        "code": "#D473D4"
+    },
+    {
+        "name": "bleu saphir",
+        "code": "#0131B4"
+    },
+    {
+        "name": "bleu ciel",
+        "code": "#77B5FE"
+    },
+    {
+        "name": "bleu marine",
+        "code": "#03224C"
+    },
+    {
+        "name": "bleu indigo",
+        "code": "#03224C"
+    },
+    {
+        "name": "canard",
+        "code": "#048B9A"
+    },
+    {
+        "name": "Bleu roi",
+        "code": "#318CE7"
+    },
+    {
+        "name": "azur",
+        "code": "#007FFF"
+    },
+    {
+        "name": "turquoise",
+        "code": "#25FDE9"
+    },
+    {
+        "name": "vert d’eau",
+        "code": "#B0F2B6"
+    },
+    {
+        "name": "vert émeraude",
+        "code": "#01D758"
+    },
+    {
+        "name": "vert kaki",
+        "code": "#798933"
+    },
+    {
+        "name": "vert olive",
+        "code": "#708D23"
+    },
+    {
+        "name": "caca d’oie",
+        "code": "#CDCD0D"
+    },
+    {
+        "name": "café",
+        "code": "#462E01"
+    },
+    {
+        "name": "chocolat",
+        "code": "#5A3A22"
+    },
+    {
+        "name": "blanc crème",
+        "code": "#FDF1B8"
+    }
+]

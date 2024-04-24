@@ -1,2 +1,10 @@
 questionary~=2.0.1
 genanki~=0.13.1
+pillow~=10.3.0
+pydub~=0.25.1
+moviepy~=1.0.3
+boto3~=1.20.34
+requests~=2.31.0
+Unidecode~=1.3.8
+urllib3==1.26.16
+beautifulsoup4~=4.12.3
